@@ -1246,7 +1246,9 @@ def main():
         default=[],
         help="""Declare compatibility with the given platform tag to enable
                 pre-compiled wheels. This argument may be given multiple
-                times. Examples include manylinux_2_17 and musllinux_1_2.""",
+                times. Examples include manylinux_2_17 and musllinux_1_2.
+                If this is specified, you MUST specify all tags that you
+                wish this environment to be compatible with.""",
     )
     parser.add_argument(
         "--machine",

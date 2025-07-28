@@ -3,7 +3,19 @@
 
 
 def _linux_platforms():
-    yield from {{repr(self.platform_tags)}}
+    # Allow users to override platform tags here
+    platform_tags = {{repr(self.platform_tags)}}
+    if platform_tags:
+        yield from platform_tags
+        return
+
+    # Otherwise use semi-default behavior
+    linux = _normalize_string(sysconfig.get_platform())
+    if not linux.startswith("linux_"):
+        # we should never be here, just yield the sysconfig one and return
+        yield linux
+        return
     arch = _normalize_string({{repr(self.host_machine)}})
     archs = {"armv8l": ["armv8l", "armv7l"]}.get(arch, [arch])
-    yield from archs
+    for arch in archs:
+        yield f"linux_{arch}"
