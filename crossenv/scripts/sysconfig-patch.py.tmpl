@@ -3,7 +3,10 @@
 _PROJECT_BASE = {{repr(self.host_project_base)}}
 
 # Things that need to be re-evaluated after patching
-_PYTHON_BUILD = is_python_build(True)
+if sys.version_info[:2] < (3, 12):
+    _PYTHON_BUILD = is_python_build(True)
+else:
+    _PYTHON_BUILD = is_python_build()
 _PREFIX = os.path.normpath(sys.prefix)
 _BASE_PREFIX = os.path.normpath(sys.base_prefix)
 _EXEC_PREFIX = os.path.normpath(sys.exec_prefix)
