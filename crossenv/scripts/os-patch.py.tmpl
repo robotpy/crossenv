@@ -1,15 +1,14 @@
-from collections import namedtuple
+import posix
 
 # Fixup os.uname, which should fix most of platform module
-uname_result_type = namedtuple(
-    "uname_result", "sysname nodename release version machine"
-)
-_uname_result = uname_result_type(
-    {{repr(self.host_sysname)}},
-    "build",
-    {{repr(self.host_release)}},
-    "",
-    {{repr(self.host_machine)}},
+_uname_result = posix.uname_result(
+    (
+        {{repr(self.host_sysname)}},
+        "build",
+        {{repr(self.host_release)}},
+        "",
+        {{repr(self.host_machine)}},
+    )
 )
 
 
