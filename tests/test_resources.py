@@ -1,12 +1,8 @@
 #######################################################################
-# These are tests to make sure that our prebuilt files are working
-# correctly.
+# These are tests to make sure that our environment is reasonably sane
 #######################################################################
-from textwrap import dedent
-import os
-import subprocess
 
-import pytest
+from textwrap import dedent
 
 
 def test_build_python_runs(build_python):

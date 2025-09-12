@@ -1,9 +1,9 @@
 import os
 import hashlib
+import pathlib
 import subprocess
 import string
-import fcntl
-from contextlib import contextmanager
+import sys
 
 
 def hash_file(path):
@@ -77,6 +77,7 @@ class ExecEnvironment:
         if self.cwd and "cwd" not in kwargs:
             kwargs["cwd"] = self.cwd
 
+        print("+", *args[0], file=sys.stderr)
         return func(*args, **kwargs)
 
     def run(self, *args, **kwargs):
@@ -90,6 +91,12 @@ class ExecEnvironment:
 
     def check_output(self, *args, **kwargs):
         return self._popen(subprocess.check_output, *args, **kwargs)
+
+
+class Resource(ExecEnvironment):
+    def __init__(self, binary: pathlib.Path):
+        super().__init__()
+        self.binary = binary
 
 
 class CrossenvEnvironment(ExecEnvironment):
@@ -120,7 +127,13 @@ class CrossenvEnvironment(ExecEnvironment):
         self.setenv("PATH", "{}:{}:$PATH".format(self.bindir, self.cross_bindir))
 
 
-def make_crossenv(crossenv_dir, host_python, build_python, *args, **kwargs):
+def make_crossenv(
+    crossenv_dir: pathlib.Path,
+    host_python: Resource,
+    build_python: Resource,
+    *args,
+    **kwargs
+):
     cmdline = [build_python.binary, "-m", "crossenv", host_python.binary, crossenv_dir]
     cmdline.extend(args)
     result = build_python.run(
@@ -134,23 +147,3 @@ def make_crossenv(crossenv_dir, host_python, build_python, *args, **kwargs):
         print(result.stdout)  # capture output on error
         assert False, "Could not make crossenv!"
     return CrossenvEnvironment(build_python, crossenv_dir, creation_log=result.stdout)
-
-
-@contextmanager
-def open_lock_file(path):
-    fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o660)
-    with open(fd, "r+") as fp:
-        fcntl.flock(fp, fcntl.LOCK_EX)
-        try:
-            data = fp.read(64)
-            if data:
-                try:
-                    yield int(data)
-                    return
-                except ValueError:
-                    fp.truncate(0)
-            yield None
-            fp.write(str(os.getpid()))
-        finally:
-            fp.flush()
-            fcntl.flock(fp, fcntl.LOCK_UN)
