@@ -483,9 +483,8 @@ class CrossEnvBuilder(venv.EnvBuilder):
         # Apple builds accept use "arm64-apple-ios12.0-simulator" for an iOS simulator.
         # The host GNU type returned by clang won't include the version number; we also
         # need to map "arm64" to "aarch64", and allow for the "-simulator" suffix.
-
         parts = triple.split("-")
-        if parts[1] == "apple":
+        if len(parts) > 1 and parts[1] == "apple":
             # Normalize Apple's CPU architecture descriptor to the GNU form.
             if parts[0] == "arm64":
                 parts[0] = "aarch64"
