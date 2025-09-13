@@ -6,13 +6,14 @@ import sys
 _EXPOSED_LIBS = os.path.realpath({{repr(context.exposed_libs)}})
 _ALLOWED = set()
 try:
-    with open(_EXPOSED_LIBS, 'r') as fp:
+    with open(_EXPOSED_LIBS, "r") as fp:
         for line in fp:
-            allow = line.split('#',1)[0].strip()
+            allow = line.split("#", 1)[0].strip()
             if allow:
                 _ALLOWED.add(allow)
 except IOError:
     pass
+
 
 class BuildPathEntryFinder:
     def __init__(self, path):
@@ -31,11 +32,13 @@ class BuildPathEntryFinder:
     def find_spec(self, fullname, target=None):
         return None
 
+
 def find_on_build_path(importer, path_item, only=False):
     for path in sys.build_path:
         for dist in find_on_path(importer, path, only):
             if dist.project_name in _ALLOWED:
                 yield dist
+
 
 sys.path_hooks.append(BuildPathEntryFinder)
 sys.path.append(_EXPOSED_LIBS)

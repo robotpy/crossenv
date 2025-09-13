@@ -5,11 +5,12 @@ Dead simple template engine.
 import re
 import copy
 
+
 class Context:
     def __init__(self):
         self.locals = {}
         self.globals = {
-            '__builtins__': __builtins__,
+            "__builtins__": __builtins__,
         }
 
     def update(self, other):
@@ -19,7 +20,7 @@ class Context:
         self.globals.update(other)
 
     def expand(self, template):
-        return re.sub(r'\{\{(.*?)\}\}', self._replace, template)
+        return re.sub(r"\{\{(.*?)\}\}", self._replace, template)
 
     def _replace(self, match):
         expr = match.group(1)

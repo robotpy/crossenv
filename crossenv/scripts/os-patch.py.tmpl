@@ -1,17 +1,21 @@
 from collections import namedtuple
 
 # Fixup os.uname, which should fix most of platform module
-uname_result_type = namedtuple('uname_result',
-        'sysname nodename release version machine')
+uname_result_type = namedtuple(
+    "uname_result", "sysname nodename release version machine"
+)
 _uname_result = uname_result_type(
-        {{repr(self.host_sysname)}},
-        'build',
-        {{repr(self.host_release)}},
-        '',
-        {{repr(self.host_machine)}})
+    {{repr(self.host_sysname)}},
+    "build",
+    {{repr(self.host_release)}},
+    "",
+    {{repr(self.host_machine)}},
+)
+
 
 def uname():
     return _uname_result
+
 
 # pip, packaging, and subprocess all use confstr to get the libc version. We do
 # not want the host's glibc version to show up, as this affects things like
@@ -20,12 +24,14 @@ def uname():
 # patch. Subprocess will likely end up using less efficient implementations,
 # but functionality shouldn't be affected.
 _original_confstr = confstr
+
+
 def confstr(name):
-    if name == 'CS_GLIBC_LIB_VERSION':
+    if name == "CS_GLIBC_LIB_VERSION":
         version = {{repr(self.effective_glibc)}}
         if version is None:
-            return 'unknown 0.0'
+            return "unknown 0.0"
         else:
-            return 'glibc_{}_{}'.format(*version)
+            return "glibc_{}_{}".format(*version)
     else:
         return _original_confstr(name)

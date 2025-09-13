@@ -12,16 +12,18 @@ if get_config_vars.__module__ == __name__:
 
     try:
         __real_init_posix = _init_posix
+
         def _init_posix():
-            old = os.environ.get('_PYTHON_SYSCONFIGDATA_NAME')
-            os.environ['_PYTHON_SYSCONFIGDATA_NAME'] = {{repr(sysconfig_name)}}
+            old = os.environ.get("_PYTHON_SYSCONFIGDATA_NAME")
+            os.environ["_PYTHON_SYSCONFIGDATA_NAME"] = {{repr(sysconfig_name)}}
             try:
                 return __real_init_posix()
             finally:
                 if old is None:
-                    del os.environ['_PYTHON_SYSCONFIGDATA_NAME']
+                    del os.environ["_PYTHON_SYSCONFIGDATA_NAME"]
                 else:
-                    os.environ['_PYTHON_SYSCONFIGDATA_NAME'] = old
+                    os.environ["_PYTHON_SYSCONFIGDATA_NAME"] = old
+
     except NameError:
         # setuptools >=61, removed _init_posix and fixes distutils.sysconfig
         # to use sysconfig which we patch in sysconfig-patch.py
@@ -29,4 +31,4 @@ if get_config_vars.__module__ == __name__:
 
     assert not _config_vars, "distutils.sysconfig was set up prior to patching?"
 
-#vi: ft=python
+# vi: ft=python

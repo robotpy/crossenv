@@ -9,9 +9,10 @@ def _build_shebang(self, executable, post_interp):
 
     So - patch the script writer so that it *always* uses a shim.
     """
-    result = b'#!/bin/sh\n'
+    result = b"#!/bin/sh\n"
     result += b"'''exec' " + executable + post_interp + b' "$0" "$@"\n'
     result += b"' '''"
     return result
+
 
 ScriptMaker._build_shebang = _build_shebang

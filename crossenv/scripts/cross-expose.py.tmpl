@@ -10,12 +10,13 @@ import pkg_resources
 logger = logging.getLogger()
 EXPOSED_LIBS = {{repr(context.exposed_libs)}}
 
+
 def get_exposed():
     exposed = set()
     try:
-        with open(EXPOSED_LIBS, 'r') as fp:
+        with open(EXPOSED_LIBS, "r") as fp:
             for line in fp:
-                item = line.split('#',1)[0].strip()
+                item = line.split("#", 1)[0].strip()
                 if not item:
                     continue
                 exposed.add(item)
@@ -29,6 +30,7 @@ def list_exposed():
     for name in sorted(exposed):
         print(name)
 
+
 def expose_packages(names, unexpose=False):
     exposed = get_exposed()
     names = set(names)
@@ -38,45 +40,60 @@ def expose_packages(names, unexpose=False):
             try:
                 pkg_resources.require(name)
             except pkg_resources.DistributionNotFound:
-                logger.warning("%r was not found in build-python. Skipping.",
-                        name)
+                logger.warning("%r was not found in build-python. Skipping.", name)
             else:
                 exposed.add(name)
 
     else:
         for name in names:
             if name not in exposed:
-                logger.warning("%r was not exposed. Skipping.",
-                        name)
+                logger.warning("%r was not exposed. Skipping.", name)
             else:
                 exposed.remove(name)
 
-    with open(EXPOSED_LIBS, 'w') as fp:
+    with open(EXPOSED_LIBS, "w") as fp:
         for item in sorted(exposed):
             print(item, file=fp)
 
+
 def get_all_modules():
     from pip.operations.freeze import freeze
-    DEV_PKGS = ('pip', 'setuptools', 'distribute', 'wheel')
+
+    DEV_PKGS = ("pip", "setuptools", "distribute", "wheel")
     installed = freeze(local_only=True, skip=DEV_PKGS)
-    return [ req.split('==')[0] for req in installed ]
+    return [req.split("==")[0] for req in installed]
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="""Let cross-pip, setup.py, etc. see packages installed in
                        build-python. This is mainly useful for getting around
-                       setup_requires.""")
-    parser.add_argument('-l', '--list', action='store_true',
-            help="""List currently exposed packages""")
-    parser.add_argument('-u', '--unexpose', action='store_true',
-            help="""Undo the effects of an eariler %(prog)s call""")
-    parser.add_argument('-v', '--verbose', action='count', default=0,
-            help="""Verbose mode. May be specified multiple times to increase
-                    verbosity.""")
-    parser.add_argument('MODULE', nargs='*',
-            help="""Module(s) to expose (or unexpose) to cross-python. If the
+                       setup_requires."""
+    )
+    parser.add_argument(
+        "-l", "--list", action="store_true", help="""List currently exposed packages"""
+    )
+    parser.add_argument(
+        "-u",
+        "--unexpose",
+        action="store_true",
+        help="""Undo the effects of an eariler %(prog)s call""",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="""Verbose mode. May be specified multiple times to increase
+                    verbosity.""",
+    )
+    parser.add_argument(
+        "MODULE",
+        nargs="*",
+        help="""Module(s) to expose (or unexpose) to cross-python. If the
                     special name :all: is encountered, all modules, as reported
-                    by 'pip freeze' will be exposed.""")
+                    by 'pip freeze' will be exposed.""",
+    )
 
     args = parser.parse_args()
 
@@ -86,7 +103,7 @@ def main():
         level = logging.DEBUG
     else:
         level = logging.WARNING
-    logging.basicConfig(level=level, format='%(levelname)s: %(message)s')
+    logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
 
     if args.list:
         list_exposed()
@@ -96,14 +113,14 @@ def main():
         parser.error("At least one MODULE name is required")
 
     if args.unexpose:
-        action = 'unexpose'
+        action = "unexpose"
     else:
-        action = 'expose'
+        action = "expose"
 
     exit_code = 0
 
     try:
-        if ':all:' in args.MODULE:
+        if ":all:" in args.MODULE:
             args.MODULE = get_all_modules()
             logger.info("All modules:")
             for m in args.MODULE:
@@ -117,5 +134,6 @@ def main():
 
     sys.exit(exit_code)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

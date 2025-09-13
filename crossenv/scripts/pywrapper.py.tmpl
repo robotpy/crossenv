@@ -4,38 +4,45 @@ import os
 import sys
 
 
-os.environ['PYTHON_CROSSENV'] = "{{context.sentinel}}"
+os.environ["PYTHON_CROSSENV"] = "{{context.sentinel}}"
 
-for name in ['_PYTHON_PROJECT_BASE', '_PYTHON_HOST_PLATFORM',
-        '_PYTHON_SYSCONFIGDATA_NAME', 'PYTHONHOME', 'PYTHONPATH']:
-    old = '_OLD_' + name
+for name in [
+    "_PYTHON_PROJECT_BASE",
+    "_PYTHON_HOST_PLATFORM",
+    "_PYTHON_SYSCONFIGDATA_NAME",
+    "PYTHONHOME",
+    "PYTHONPATH",
+]:
+    old = "_OLD_" + name
     if old not in os.environ and name in os.environ:
         os.environ[old] = os.environ[name]
 
-os.environ['_PYTHON_PROJECT_BASE']={{repr(self.host_project_base)}}
-os.environ['_PYTHON_HOST_PLATFORM']={{repr(self.host_platform)}}
-os.environ['_PYTHON_SYSCONFIGDATA_NAME']={{repr(sysconfig_name)}}
-os.environ['PYTHONHOME']={{repr(self.host_home)}}
-oldpath = os.environ.get('PYTHONPATH')
-newpath = os.pathsep.join([{{repr(context.lib_path)}}, {{repr(stdlib)}}, {{repr(dynload)}}])
+os.environ["_PYTHON_PROJECT_BASE"] = {{repr(self.host_project_base)}}
+os.environ["_PYTHON_HOST_PLATFORM"] = {{repr(self.host_platform)}}
+os.environ["_PYTHON_SYSCONFIGDATA_NAME"] = {{repr(sysconfig_name)}}
+os.environ["PYTHONHOME"] = {{repr(self.host_home)}}
+oldpath = os.environ.get("PYTHONPATH")
+newpath = os.pathsep.join(
+    [{{repr(context.lib_path)}}, {{repr(stdlib)}}, {{repr(dynload)}}]
+)
 if oldpath:
     path = os.pathsep.join([newpath, oldpath])
 else:
     path = newpath
 
-os.environ['PYTHONPATH'] = path
+os.environ["PYTHONPATH"] = path
 
 extra_envs = {{repr(extra_envs)}}
 for name, assign, value in extra_envs:
-    if assign == '=':
+    if assign == "=":
         os.environ[name] = value
-    elif assign == '?=' and name not in os.environ:
+    elif assign == "?=" and name not in os.environ:
         os.environ[name] = value
-    elif assign == '+=':
-        os.environ[name] = os.environ.get(name,'') + value
-    elif assign == ':=':
+    elif assign == "+=":
+        os.environ[name] = os.environ.get(name, "") + value
+    elif assign == ":=":
         if name in os.environ:
-            os.environ[name] = os.environ[name] + ':' + value
+            os.environ[name] = os.environ[name] + ":" + value
         else:
             os.environ[name] = value
 
