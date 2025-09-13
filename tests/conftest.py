@@ -1,45 +1,19 @@
-import os
-from pathlib import Path
-import shutil
-import hashlib
+#
+# To run the tests, you must have crossenv installed and the following environment
+# variables must be set:
+#
+#   CROSSENV_TEST_BUILD_PYTHON=/path/to/build/python3.x
+#   CROSSENV_TEST_HOST_PYTHON=/path/to/target/python3.x
+#   CROSSENV_TEST_ARCH=arch system machine
+#
+# The crossenv testing docker images already have these environment variables set.
+#
 
 import pytest
 
-from .resources import prebuilt_blobs
 from . import testutils
 
-# Fixtures for everyone. Make sure to include fixture-of-fixture
-# dependencies...
-from .resources import (
-    host_python,
-    build_python,
-    architecture,
-    python_version,
-    get_resource,
-    crossenv_setup,
-)
-
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--coverage", action="store_true", help="Enable code coverage for crossenv"
-    )
-
-
-def pytest_configure(config):
-    # Make sure we use pathlib Paths, not pytest Paths
-    cache_dir = Path(str(config.cache.makedir("prebuilt")))
-    prebuilt_blobs.cache_dir = cache_dir
-
-    # Set PYTHONPATH such that we can use crossenv wherever we are
-    this_dir = Path(__file__).parent
-    crossenv_dir = this_dir.parent.resolve()
-    path = os.environ.get("PYTHONPATH")
-    if path:
-        path = str(crossenv_dir) + path
-    else:
-        path = str(crossenv_dir)
-    os.environ["PYTHONPATH"] = path
+from .resources import host_python, build_python, architecture
 
 
 @pytest.fixture(scope="module")

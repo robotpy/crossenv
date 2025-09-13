@@ -2,9 +2,12 @@
 # Test options that alter the compiler
 ########################################
 
+import os
 from textwrap import dedent
 import re
 import platform
+
+import pytest
 
 from .testutils import make_crossenv
 
@@ -63,6 +66,7 @@ def test_set_ar(tmp_path, host_python, build_python):
     assert compiler == b"/bin/true"
 
 
+@pytest.mark.skipif(not os.path.exists("/usr/bin/gcc"), reason="Test needs gcc")
 def test_wrong_architecture(tmp_path, host_python, build_python, architecture):
     """Make sure we get a warning if the compiler doesn't seem right. Requires
     gcc."""

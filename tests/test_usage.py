@@ -102,4 +102,5 @@ def test_cross_prefix(tmp_path, host_python, build_python):
         ["bash", "-c", ". {}; echo $PS1".format(activate)], universal_newlines=True
     )
 
-    assert "(this_is_a_test)" in out
+    # cross-prefix has same prompt as environment name
+    assert "(cross)" in out

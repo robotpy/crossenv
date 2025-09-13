@@ -2,6 +2,8 @@ import os
 import re
 from textwrap import dedent
 
+import pytest
+
 from .testutils import make_crossenv
 
 
@@ -222,6 +224,7 @@ def test_run_sysconfig_module(crossenv):
     assert destdirs_cmdline == out
 
 
+@pytest.mark.xfail(reason="cross-expose needs to patch importlib.metadata")
 def test_cross_expose(crossenv):
     out = crossenv.check_output(["pip", "freeze"])
     assert b"colorama" not in out

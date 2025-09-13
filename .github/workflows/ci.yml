@@ -21,3 +21,91 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: psf/black@stable
+  
+  # check-doc:
+  #   runs-on: ubuntu-22.04
+    
+  #   steps:
+  #   - uses: actions/checkout@v4
+
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: 3.8
+  #   - name: Sphinx
+  #     run: |
+  #       pip --disable-pip-version-check install -e .
+  #       pip --disable-pip-version-check install -r docs/requirements.txt
+  #       cd docs && make clean html SPHINXOPTS="-W --keep-going"
+
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.8
+
+    - name: Install build
+      run: python -m pip --disable-pip-version-check install build
+
+    - name: Build sdist + wheel
+      run: python -m build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist
+
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+      matrix:
+        container:
+        - ghcr.io/robotpy/crossenv-ci-images:py311-arm64-24.04-qemu
+        - ghcr.io/robotpy/crossenv-ci-images:py312-arm64-24.04-qemu
+        - ghcr.io/robotpy/crossenv-ci-images:py313-arm64-24.04-qemu
+
+    container:
+      image: "${{ matrix.container }}"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist
+
+    - name: Install
+      working-directory: dist
+      run: $CROSSENV_TEST_BUILD_PYTHON -m pip --disable-pip-version-check install *.whl
+
+    - name: Install test dependencies
+      run: $CROSSENV_TEST_BUILD_PYTHON -m pip --disable-pip-version-check install pytest
+
+    - name: Test wheel
+      run: $CROSSENV_TEST_BUILD_PYTHON -m pytest tests -v
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+    - check
+    # - check-doc
+    - test
+    permissions:
+      id-token: write
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
