@@ -67,6 +67,7 @@ jobs:
         - ghcr.io/robotpy/crossenv-ci-images:py311-arm64-24.04-qemu
         - ghcr.io/robotpy/crossenv-ci-images:py312-arm64-24.04-qemu
         - ghcr.io/robotpy/crossenv-ci-images:py313-arm64-24.04-qemu
+        - ghcr.io/robotpy/crossenv-ci-images:py314-arm64-24.04-qemu
 
     container:
       image: "${{ matrix.container }}"

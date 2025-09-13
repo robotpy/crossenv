@@ -59,7 +59,8 @@ def _patch_module(module, patch):
     # The default causes an import to happen too early.
     with open(patch, "r", encoding="utf-8") as fp:
         src = fp.read()
-    exec(src, module.__dict__, module.__dict__)
+    code = compile(src, patch, "exec")
+    exec(code, module.__dict__, module.__dict__)
     module.__patched__ = True
 
 
