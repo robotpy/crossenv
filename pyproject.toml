@@ -7,7 +7,7 @@ dynamic = ["version"]
 name = "crossenv"
 description = "A cross-compiling tool for Python extension modules"
 readme = { file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.4"
+requires-python = ">=3.5"
 license = { file = "LICENSE.txt" }
 authors = [
     { name = "Benjamin Fogle", email = "benfogle@gmail.com" }
@@ -34,3 +34,11 @@ version = { attr = "crossenv.__version__" }
 
 [tool.setuptools.package-data]
 crossenv = ["scripts/*"]
+
+[tool.black]
+include = '''
+(
+    ^/crossenv/scripts/.*\.py\.tmpl$
+    | .*\.py
+)
+'''

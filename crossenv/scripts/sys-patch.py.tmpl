@@ -1,11 +1,11 @@
 cross_compiling = True
 build_path = {{repr(context.build_sys_path)}}
 platform = {{repr(self.host_sys_platform)}}
-abiflags = {{repr(host_build_time_vars.get('ABIFLAGS'))}}
+abiflags = {{repr(host_build_time_vars.get("ABIFLAGS"))}}
 if abiflags is None:
     del abiflags
 
-implementation._multiarch = {{repr(host_build_time_vars.get('MULTIARCH'))}}
+implementation._multiarch = {{repr(host_build_time_vars.get("MULTIARCH"))}}
 if implementation._multiarch is None:
     del implementation._multiarch
 

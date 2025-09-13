@@ -1,12 +1,13 @@
 @property
 def _Context_path(self):
-    path = vars(self).get('path')
+    path = vars(self).get("path")
     if path is not None:
         return path
 
     import sysconfig
     import sys
-    stdlib = sysconfig.get_path('stdlib')
+
+    stdlib = sysconfig.get_path("stdlib")
     path = list(sys.path)
     try:
         i = path.index(stdlib)
@@ -15,6 +16,7 @@ def _Context_path(self):
         pass
 
     return path
+
 
 # This will apply to all created instances of Context(), so we don't need to
 # patch the default argument to any find_distribution() functions out there.

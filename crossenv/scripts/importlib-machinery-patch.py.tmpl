@@ -5,6 +5,7 @@ _original_find_spec = PathFinder.find_spec
 import sysconfig
 import sys
 
+
 @classmethod
 def _PathFinder_find_spec(cls, fullname, path=None, target=None):
     """Monkey patch to PathFinder.find_spec that silently inserts
@@ -15,7 +16,7 @@ def _PathFinder_find_spec(cls, fullname, path=None, target=None):
     environments."""
 
     if path is None:
-        stdlib = sysconfig.get_path('stdlib')
+        stdlib = sysconfig.get_path("stdlib")
         path = list(sys.path)
         try:
             i = path.index(stdlib)
@@ -24,6 +25,8 @@ def _PathFinder_find_spec(cls, fullname, path=None, target=None):
             pass
 
     return _original_find_spec(fullname, path, target)
+
+
 PathFinder.find_spec = _PathFinder_find_spec
 
 EXTENSION_SUFFIXES = [{{repr(self.sysconfig_ext_suffix)}}, ".abi3.so", ".so"]

@@ -8,7 +8,8 @@
 # import os, which can cause a SyntaxError.
 import sys
 import posix
-_sentinel = posix.environ.get(b'PYTHON_CROSSENV')
+
+_sentinel = posix.environ.get(b"PYTHON_CROSSENV")
 if _sentinel != b"{{context.sentinel}}":
     print("*******************************************************")
     print("* Crossenv has leaked into another Python interpreter!")
@@ -22,14 +23,19 @@ import importlib.machinery
 import importlib.abc
 import importlib.util
 
-os.environ['PYTHON_CROSSENV'] = 'x'
+os.environ["PYTHON_CROSSENV"] = "x"
 
 # To prevent the above scenario from playing out every time run a script that
 # starts with #!/usr/bin/python, we need to remove the environment variables so
 # subprocesses won't see them.
-for name in ['_PYTHON_PROJECT_BASE', '_PYTHON_HOST_PLATFORM',
-             '_PYTHON_SYSCONFIGDATA_NAME', 'PYTHONHOME', 'PYTHONPATH']:
-    prev = '_OLD_' + name
+for name in [
+    "_PYTHON_PROJECT_BASE",
+    "_PYTHON_HOST_PLATFORM",
+    "_PYTHON_SYSCONFIGDATA_NAME",
+    "PYTHONHOME",
+    "PYTHONPATH",
+]:
+    prev = "_OLD_" + name
     try:
         os.environ[name] = os.environ[prev]
     except KeyError:
@@ -46,20 +52,23 @@ for name in ['_PYTHON_PROJECT_BASE', '_PYTHON_HOST_PLATFORM',
 # Additionally, we need to patch something in distutils, but importing it in
 # order to patch will subsequently cause setuptools to complain.
 
+
 def _patch_module(module, patch):
     # add our patch as if it had been typed just after
     # explicit encoding, because we know that utf-8 has been loaded already.
     # The default causes an import to happen too early.
-    with open(patch, 'r', encoding='utf-8') as fp:
+    with open(patch, "r", encoding="utf-8") as fp:
         src = fp.read()
     exec(src, module.__dict__, module.__dict__)
     module.__patched__ = True
 
+
 def make_loader(original, patch):
-    if hasattr(original, 'exec_module'):
+    if hasattr(original, "exec_module"):
         return CrossenvPatchLoader(original, patch)
     else:
         return CrossenvPatchLegacyLoader(original, patch)
+
 
 class CrossenvPatchLoader(importlib.abc.Loader):
     def __init__(self, original, patch):
@@ -79,6 +88,7 @@ class CrossenvPatchLoader(importlib.abc.Loader):
     def __getattr__(self, name):
         return getattr(self.original, name)
 
+
 class CrossenvPatchLegacyLoader(importlib.abc.Loader):
     def __init__(self, original, patch):
         self.original = original
@@ -86,12 +96,13 @@ class CrossenvPatchLegacyLoader(importlib.abc.Loader):
 
     def load_module(self, fullname):
         module = self.original.load_module(fullname)
-        if not hasattr(module, '__patched__'):
+        if not hasattr(module, "__patched__"):
             _patch_module(module, self.patch)
         return module
 
     def __getattr__(self, name):
         return getattr(self.original, name)
+
 
 class CrossenvFinder(importlib.abc.MetaPathFinder):
     """Mucks with import machinery in two ways:
@@ -101,19 +112,19 @@ class CrossenvFinder(importlib.abc.MetaPathFinder):
     """
 
     PATCHES = {
-        'importlib.machinery': '{{context.lib_path}}/importlib-machinery-patch.py',
-        'importlib.metadata': '{{context.lib_path}}/importlib-metadata-patch.py',
-        'sys': '{{context.lib_path}}/sys-patch.py',
-        'os': '{{context.lib_path}}/os-patch.py',
-        'subprocess': '{{context.lib_path}}/subprocess-patch.py',
-        'sysconfig': '{{context.lib_path}}/sysconfig-patch.py',
-        'distutils.sysconfig': '{{context.lib_path}}/distutils-sysconfig-patch.py',
-        'distutils.sysconfig_pypy': '{{context.lib_path}}/distutils-sysconfig-patch.py',
-        'platform': '{{context.lib_path}}/platform-patch.py',
-        'pkg_resources': '{{context.lib_path}}/pkg_resources-patch.py',
-        'pip._vendor.distlib.scripts': '{{context.lib_path}}/pip-_vendor-distlib-scripts-patch.py',
-        'pip._vendor.pkg_resources': '{{context.lib_path}}/pkg_resources-patch.py',
-        'packaging.tags': '{{context.lib_path}}/packaging-tags-patch.py',
+        "importlib.machinery": "{{context.lib_path}}/importlib-machinery-patch.py",
+        "importlib.metadata": "{{context.lib_path}}/importlib-metadata-patch.py",
+        "sys": "{{context.lib_path}}/sys-patch.py",
+        "os": "{{context.lib_path}}/os-patch.py",
+        "subprocess": "{{context.lib_path}}/subprocess-patch.py",
+        "sysconfig": "{{context.lib_path}}/sysconfig-patch.py",
+        "distutils.sysconfig": "{{context.lib_path}}/distutils-sysconfig-patch.py",
+        "distutils.sysconfig_pypy": "{{context.lib_path}}/distutils-sysconfig-patch.py",
+        "platform": "{{context.lib_path}}/platform-patch.py",
+        "pkg_resources": "{{context.lib_path}}/pkg_resources-patch.py",
+        "pip._vendor.distlib.scripts": "{{context.lib_path}}/pip-_vendor-distlib-scripts-patch.py",
+        "pip._vendor.pkg_resources": "{{context.lib_path}}/pkg_resources-patch.py",
+        "packaging.tags": "{{context.lib_path}}/packaging-tags-patch.py",
     }
 
     def __init__(self):
@@ -132,7 +143,8 @@ class CrossenvFinder(importlib.abc.MetaPathFinder):
     def _find_sysconfigdata(self, fullname, path, target):
         if fullname == {{repr(sysconfig_name)}}:
             return importlib.util.spec_from_file_location(
-                    fullname, {{repr(context.cross_sysconfig)}})
+                fullname, {{repr(context.cross_sysconfig)}}
+            )
         else:
             return None
 
@@ -162,13 +174,15 @@ class CrossenvFinder(importlib.abc.MetaPathFinder):
         # do this one first so import machinery works for any subsequent
         # patches
         import importlib.machinery
-        _patch_module(importlib.machinery, self.PATCHES['importlib.machinery'])
+
+        _patch_module(importlib.machinery, self.PATCHES["importlib.machinery"])
 
         for name, module in sys.modules.items():
-            if name == 'importlib.machinery':
+            if name == "importlib.machinery":
                 continue
             if name in self.PATCHES:
                 _patch_module(module, self.PATCHES[name])
+
 
 # add just before the real path finder
 try:
@@ -180,6 +194,6 @@ sys.meta_path.insert(_index, CrossenvFinder())
 # Re-import the real site module, so Python can continue booting. Crossenv is
 # ready! We do want to remove sysconfig or any other module that relies on
 # patching after site has messed with sys.
-del sys.modules['site']
-sys.modules.pop('sysconfig', None)
+del sys.modules["site"]
+sys.modules.pop("sysconfig", None)
 import site
