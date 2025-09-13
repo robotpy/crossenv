@@ -125,6 +125,7 @@ class CrossenvFinder(importlib.abc.MetaPathFinder):
         "pkg_resources": "{{context.lib_path}}/pkg_resources-patch.py",
         "pip._vendor.distlib.scripts": "{{context.lib_path}}/pip-_vendor-distlib-scripts-patch.py",
         "pip._vendor.pkg_resources": "{{context.lib_path}}/pkg_resources-patch.py",
+        "pip._vendor.packaging.tags": "{{context.lib_path}}/packaging-tags-patch.py",
         "packaging.tags": "{{context.lib_path}}/packaging-tags-patch.py",
     }
 

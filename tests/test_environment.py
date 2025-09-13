@@ -125,6 +125,16 @@ def test_explicit_platform_tags(tmp_path, host_python, build_python, architectur
     assert "foobar1234" in out
     assert "mytag" in out
 
+    out = crossenv.check_output(
+        ["pip", "debug", "--verbose"],
+        universal_newlines=True,
+    ).strip()
+    assert "foobar1234" in out
+    assert "mytag" in out
+
+    # default tags are excluded if custom tags are specified
+    assert f"linux_{architecture.machine}" not in out
+
 
 def test_explicit_manylinux(tmp_path, host_python, build_python, architecture):
     # not defined for all architectures, so pass them
@@ -153,6 +163,20 @@ def test_explicit_manylinux(tmp_path, host_python, build_python, architecture):
     out = out.strip()
     assert "manylinux2014" in out
     assert "manylinux_2_17" in out
+
+
+def test_pip_default_platform(tmp_path, host_python, build_python, architecture):
+    crossenv = make_crossenv(
+        tmp_path,
+        host_python,
+        build_python,
+    )
+
+    out = crossenv.check_output(
+        ["pip", "debug", "--verbose"],
+        universal_newlines=True,
+    ).strip()
+    assert f"linux_{architecture.machine}" in out
 
 
 def test_very_long_paths(tmp_path_factory, host_python, build_python):
