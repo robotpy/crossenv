@@ -4,6 +4,13 @@
 Cross compiling can be challenging, and crossenv is focused only on one
 particular piece. As such, this section is not a complete guide.
 
+.. seealso:: For CI purposes the crossenv project builds several docker images
+             that contain appropriately configured build and host pythons for
+             cross compilation. You may find these to be a useful starting
+             point.
+
+             https://github.com/robotpy/crossenv-ci-images
+
 Build build-python
 ------------------
 
@@ -31,9 +38,10 @@ builds may require more. It depends very much on your specific requirements.)
 Build or obtain host-python
 ---------------------------
 
-In this quick start we assume you are building host-python yourself. In other
-cases you may be targeting a pre-built system image. A pre-built image has it's
-own challenges, which are covered elsewhere.
+In this quick start we assume you are building host-python yourself. It is not
+a requirement to use the actual python that is on the target host -- and in fact
+we don't recommend it! The primary requirement is that the version must match the
+version of build-python.
 
 You will need to build any host dependencies beforehand. So, for example, if
 you want host-python to be able to communicate over a network, you may need to
