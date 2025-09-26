@@ -132,7 +132,7 @@ def make_crossenv(
     host_python: Resource,
     build_python: Resource,
     *args,
-    **kwargs
+    **kwargs,
 ):
     cmdline = [build_python.binary, "-m", "crossenv", host_python.binary, crossenv_dir]
     cmdline.extend(args)

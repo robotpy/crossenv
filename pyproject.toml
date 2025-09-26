@@ -1,22 +1,16 @@
 [build-system]
-requires = ["setuptools==74.1.2"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 dynamic = ["version"]
 name = "crossenv"
 description = "A cross-compiling tool for Python extension modules"
 readme = { file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.5"
+requires-python = ">=3.6"
 license = { file = "LICENSE.txt" }
-authors = [
-    { name = "Benjamin Fogle", email = "benfogle@gmail.com" }
-]
-maintainers = [
-    { name = "Benjamin Fogle", email = "benfogle@gmail.com" }
-]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "License :: OSI Approved :: MIT License",
@@ -26,17 +20,20 @@ dependencies = [
     "wheel"
 ]
 
+[[project.authors]]
+name = "Benjamin Fogle"
+email = "benfogle@gmail.com"
+
+[[project.maintainers]]
+name = "Dustin Spicuzza"
+email = "dustin@virtualroadside.com"
+
 [project.urls]
-Homepage = "https://github.com/benfogle/crossenv"
+Homepage = "https://github.com/robotpy/crossenv"
 
-[tool.setuptools]
-packages = ["crossenv"]
+[tool.hatch.version]
+path = "crossenv/__init__.py"
 
-[tool.setuptools.dynamic]
-version = { attr = "crossenv.__version__" }
-
-[tool.setuptools.package-data]
-crossenv = ["scripts/*"]
 
 [tool.black]
 include = '''

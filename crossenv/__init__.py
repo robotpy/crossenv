@@ -129,7 +129,7 @@ class CrossEnvBuilder(venv.EnvBuilder):
         host_sysconfigdata_file=None,
         manylinux_tags=(),
         platform_tags=(),
-        host_machine=None
+        host_machine=None,
     ):
         self.host_sysroot = host_sysroot
         self.host_cc = None
