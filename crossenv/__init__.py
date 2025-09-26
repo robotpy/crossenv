@@ -16,7 +16,7 @@ import re
 from .utils import F
 from . import utils
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 
 logger = logging.getLogger(__name__)
 

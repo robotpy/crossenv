@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0] - 2025-09-26
+
+crossenv is now being maintained by the RobotPy development team. Thanks to
+Ben Fogle for creating this useful tool!
+
+### Added
+- Package is now built using hatchling (#156)
+- Support for Python 3.14 (#130)
+
+### Fixed
+- cross-expose now installs a fake wheel instead of monkey patching (#154)
+- Apply packaging.tags patch to pip's vendored version (#129)
+- Use --platform-tags when overriding packaging.tags
+- Don't fail if arch triple isn't a triple
+- Fixed compatibility with newer pip scripts
+- Updated documentation
+
 ## [1.5.0] - 2024-10-05
 
 ### Added
