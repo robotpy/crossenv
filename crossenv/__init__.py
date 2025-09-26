@@ -538,6 +538,7 @@ class CrossEnvBuilder(venv.EnvBuilder):
                 utils.remove_path(os.path.join(env_dir, sub))
 
         context = super().ensure_directories(env_dir)
+        context.sys_executable = sys.executable
         context.lib_path = os.path.join(env_dir, "lib")
         context.exposed_libs = os.path.join(context.lib_path, "exposed.txt")
         utils.mkdir_if_needed(context.lib_path)
@@ -893,7 +894,6 @@ class CrossEnvBuilder(venv.EnvBuilder):
             "subprocess-patch.py",
             "distutils-sysconfig-patch.py",
             "pip-_vendor-distlib-scripts-patch.py",
-            "pkg_resources-patch.py",
             "packaging-tags-patch.py",
         ]
 
