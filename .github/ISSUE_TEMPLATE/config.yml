@@ -1,0 +1,4 @@
+contact_links:
+  - name: Ask a question
+    url: https://github.com/robotpy/crossenv/discussions/categories/q-a-support
+    about: Best place to ask support questions
