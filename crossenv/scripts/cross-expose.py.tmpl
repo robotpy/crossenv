@@ -1,14 +1,87 @@
 #!{{context.build_env_exe}}
 
 import sys
-import os
 import importlib
 import argparse
 import logging
-import pkg_resources
+import pathlib
+import re
+import subprocess
+import tempfile
+
+
+try:
+    import importlib.metadata
+
+    def _get_package(name):
+        try:
+            dist = importlib.metadata.distribution(name)
+            return dist.version
+        except importlib.metadata.PackageNotFoundError:
+            return None
+
+except ImportError:
+    import pkg_resources
+
+    def _get_package(name):
+        try:
+            dist = pkg_resources.get_distribution(name)
+            return dist.version
+        except pkg_resources.DistributionNotFound:
+            return None
+
 
 logger = logging.getLogger()
 EXPOSED_LIBS = {{repr(context.exposed_libs)}}
+
+
+def install_fake_wheel(name, version):
+    # https://packaging.python.org/en/latest/specifications/name-normalization/#name-normalization
+    name = re.sub(r"[-_.]+", "-", name).lower()
+    wheel_dist = name.replace("-", "_")
+
+    with tempfile.TemporaryDirectory() as tname:
+        tpath = pathlib.Path(tname)
+        dist_info = tpath / f"{wheel_dist}-{version}.dist-info"
+        dist_info.mkdir(parents=True, exist_ok=True)
+
+        with open(dist_info / "METADATA", "w") as fp:
+            fp.write(
+                "Metadata-Version: 2.1\n" f"Name: {name}\n" f"Version: {version}\n"
+            )
+
+        with open(dist_info / "WHEEL", "w") as fp:
+            fp.write(
+                "Wheel-Version: 1.0\n"
+                "Generator: crossenv\n"
+                "Root-Is-Purelib: true\n"
+                "Tag: py3-none-any\n"
+            )
+
+        subprocess.check_call(
+            [
+                {{repr(context.sys_executable)}},
+                "-m",
+                "wheel",
+                "pack",
+                tname,
+                "--dest-dir",
+                tname,
+            ]
+        )
+
+        whl = list(tpath.glob("*.whl"))[0]
+
+        subprocess.check_call(
+            [
+                {{repr(context.cross_env_exe)}},
+                "-m",
+                "pip",
+                "--disable-pip-version-check",
+                "install",
+                str(whl),
+            ]
+        )
 
 
 def get_exposed():
@@ -34,15 +107,19 @@ def list_exposed():
 def expose_packages(names, unexpose=False):
     exposed = get_exposed()
     names = set(names)
+    added = set()
+    removed = []
 
     if not unexpose:
         for name in names:
-            try:
-                pkg_resources.require(name)
-            except pkg_resources.DistributionNotFound:
-                logger.warning("%r was not found in build-python. Skipping.", name)
-            else:
+            if name in exposed:
+                continue
+            version = _get_package(name)
+            if version is not None:
                 exposed.add(name)
+                added.add((name, version))
+            else:
+                logger.warning("%r was not found in build-python. Skipping.", name)
 
     else:
         for name in names:
@@ -50,6 +127,23 @@ def expose_packages(names, unexpose=False):
                 logger.warning("%r was not exposed. Skipping.", name)
             else:
                 exposed.remove(name)
+                removed.append(name)
+
+    for name, version in added:
+        install_fake_wheel(name, version)
+
+    if removed:
+        subprocess.check_call(
+            [
+                {{repr(context.cross_env_exe)}},
+                "-m",
+                "pip",
+                "--disable-pip-version-check",
+                "uninstall",
+                "-y",
+            ]
+            + removed
+        )
 
     with open(EXPOSED_LIBS, "w") as fp:
         for item in sorted(exposed):
@@ -129,7 +223,7 @@ def main():
         expose_packages(args.MODULE, args.unexpose)
     except Exception as e:
         exit_code = 1
-        logger.error("Cannot %s %s: %s", action, mod, e)
+        logger.error("Cannot %s %s: %s", action, args.MODULE, e)
         logger.error("Traceback:", exc_info=True)
 
     sys.exit(exit_code)

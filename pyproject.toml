@@ -22,6 +22,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
 ]
+dependencies = [
+    "wheel"
+]
 
 [project.urls]
 Homepage = "https://github.com/benfogle/crossenv"
