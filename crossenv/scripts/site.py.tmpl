@@ -11,12 +11,12 @@ import posix
 
 _sentinel = posix.environ.get(b"PYTHON_CROSSENV")
 if _sentinel != b"{{context.sentinel}}":
-    print("*******************************************************")
-    print("* Crossenv has leaked into another Python interpreter!")
-    print("* You should probably file a bug report.")
-    print("* Version %s" % sys.version)
-    print("* Executable %s" % sys.executable)
-    print("*******************************************************")
+    print("*******************************************************", file=sys.stderr)
+    print("* Crossenv has leaked into another Python interpreter!", file=sys.stderr)
+    print("* You should probably file a bug report.", file=sys.stderr)
+    print("* Version %s" % sys.version, file=sys.stderr)
+    print("* Executable %s" % sys.executable, file=sys.stderr)
+    print("*******************************************************", file=sys.stderr)
 
 import os
 import importlib.machinery
