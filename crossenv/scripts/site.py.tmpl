@@ -9,7 +9,21 @@
 import sys
 import posix
 
-_sentinel = posix.environ.get(b"PYTHON_CROSSENV")
+# Handle subinterpreters -- everything should already be ready to go, but
+# the PYTHON_CROSSENV environment variable won't be set because we're running
+# in the same process
+_sentinel = None
+try:
+    import concurrent.interpreters
+except ImportError:
+    pass
+else:
+    if concurrent.interpreters.get_current() != concurrent.interpreters.get_main():
+        _sentinel = b"{{context.sentinel}}"
+
+
+if _sentinel is None:
+    _sentinel = posix.environ.get(b"PYTHON_CROSSENV")
 if _sentinel != b"{{context.sentinel}}":
     print("*******************************************************", file=sys.stderr)
     print("* Crossenv has leaked into another Python interpreter!", file=sys.stderr)
