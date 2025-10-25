@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.1] - 2025-10-24
+
+### Fixed
+- Using subinterpreters no longer results in "crossenv leaked into interpreter"
+  warnings (#160)
+
 ## [1.6.0] - 2025-09-26
 
 crossenv is now being maintained by the RobotPy development team. Thanks to
