@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 from textwrap import dedent
 
 import pytest
@@ -218,6 +219,30 @@ def test_environment_leak(crossenv):
             ),
         ],
         universal_newlines=True,
+        stderr=subprocess.STDOUT,
+    )
+    assert "Crossenv has leaked" not in out
+
+
+def test_environment_subinterpreter_leak(crossenv):
+    pytest.importorskip("concurrent.interpreters")
+    out = crossenv.check_output(
+        [
+            "python",
+            "-c",
+            dedent(
+                """\
+            import concurrent.interpreters
+
+            def fn():
+                print("ok")
+
+            concurrent.interpreters.create().call(fn)
+            """
+            ),
+        ],
+        universal_newlines=True,
+        stderr=subprocess.STDOUT,
     )
     assert "Crossenv has leaked" not in out
 
