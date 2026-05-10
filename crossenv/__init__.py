@@ -1097,11 +1097,9 @@ def parse_config_vars(config_vars):
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="""
+    parser = argparse.ArgumentParser(description="""
                 Create virtual Python environments for cross compiling
-                """
-    )
+                """)
 
     parser.add_argument(
         "--cross-prefix",

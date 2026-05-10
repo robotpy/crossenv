@@ -18,12 +18,10 @@ def test_set_c_compiler(tmp_path, host_python, build_python):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
         import sysconfig
         print(sysconfig.get_config_var("CC"))
-        """
-            ),
+        """),
         ]
     )
     compiler = compiler.split()[0]
@@ -36,12 +34,10 @@ def test_set_cxx_compiler(tmp_path, host_python, build_python):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
         import sysconfig
         print(sysconfig.get_config_var("CXX"))
-        """
-            ),
+        """),
         ]
     )
     compiler = compiler.split()[0]
@@ -54,12 +50,10 @@ def test_set_ar(tmp_path, host_python, build_python):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
         import sysconfig
         print(sysconfig.get_config_var("AR"))
-        """
-            ),
+        """),
         ]
     )
     compiler = compiler.split()[0]

@@ -17,7 +17,6 @@
 import sphinx_rtd_theme
 import importlib.metadata
 
-
 # -- Project information -----------------------------------------------------
 
 project = "Crossenv"

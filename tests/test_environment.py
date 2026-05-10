@@ -15,12 +15,10 @@ def test_uname(crossenv, architecture):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import os
             print(os.uname().sysname, os.uname().machine)
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -42,14 +40,12 @@ def test_platform(crossenv, architecture):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import platform
             print(platform.uname().system,
                   platform.uname().machine,
                   platform.uname().processor)
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -63,12 +59,10 @@ def test_sysconfig_platform(crossenv, architecture):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import sysconfig
             print(sysconfig.get_platform())
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -84,13 +78,11 @@ def test_no_manylinux(crossenv, architecture):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             from packaging.tags import compatible_tags
             platforms = set(tag.platform for tag in compatible_tags())
             print('\\n'.join(platforms))
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -112,13 +104,11 @@ def test_explicit_platform_tags(tmp_path, host_python, build_python, architectur
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             from packaging.tags import compatible_tags
             platforms = set(tag.platform for tag in compatible_tags())
             print('\\n'.join(platforms))
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -151,13 +141,11 @@ def test_explicit_manylinux(tmp_path, host_python, build_python, architecture):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             from packaging.tags import compatible_tags
             platforms = set(tag.platform for tag in compatible_tags())
             print('\\n'.join(platforms))
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -205,8 +193,7 @@ def test_environment_leak(crossenv):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import subprocess
             import sys
             import os
@@ -215,8 +202,7 @@ def test_environment_leak(crossenv):
             python = sys.executable
             result = subprocess.run([python, '-c', 'print("ok")'], env=env)
             sys.exit(result.returncode)
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
         stderr=subprocess.STDOUT,
@@ -230,16 +216,14 @@ def test_environment_subinterpreter_leak(crossenv):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import concurrent.interpreters
 
             def fn():
                 print("ok")
 
             concurrent.interpreters.create().call(fn)
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
         stderr=subprocess.STDOUT,
@@ -260,12 +244,10 @@ def test_run_sysconfig_module(crossenv):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import sysconfig
             print(sysconfig.get_config_var('DESTDIRS'))
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
@@ -303,12 +285,10 @@ def test_machine_override(tmp_path, host_python, build_python):
         [
             "python",
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import os, platform
             print(os.uname().machine, platform.machine())
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )

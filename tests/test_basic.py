@@ -47,12 +47,10 @@ def test_build_simple(tmp_path, host_python, build_python, hello_module_path):
         [
             host_python.binary,
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import hello
             assert hello.hello() == 'Hello, world'
-            """
-            ),
+            """),
         ]
     )
 
@@ -73,12 +71,10 @@ def test_wheel_simple(tmp_path, host_python, build_python, hello_module_path):
         [
             host_python.binary,
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import hello
             assert hello.hello() == 'Hello, world'
-            """
-            ),
+            """),
         ]
     )
 
@@ -145,18 +141,14 @@ def test_build_cross_expose(tmp_path, host_python, build_python):
     with open(proj / "dummy_dependency.py", "w"):
         pass
     with open(proj / "pyproject.toml", "w") as fp:
-        fp.write(
-            dedent(
-                """
+        fp.write(dedent("""
             [build-system]
             requires = ["setuptools"]
                         
             [project]
             name = "dummy-dependency"
             version = "0.1"
-            """
-            )
-        )
+            """))
 
     crossenv.check_call(["build-pip", "--no-cache-dir", "install", "."], cwd=proj)
 
@@ -165,14 +157,10 @@ def test_build_cross_expose(tmp_path, host_python, build_python):
     with open(proj / "dummy.py", "w"):
         pass
     with open(proj / "pyproject.toml", "w") as fp:
-        fp.write(
-            dedent(
-                """
+        fp.write(dedent("""
             [build-system]
             requires = ["setuptools", "dummy-dependency"]
-            """
-            )
-        )
+            """))
 
     crossenv.check_call(
         ["cross-pip", "--no-cache-dir", "install", "-U", "setuptools", "wheel", "build"]

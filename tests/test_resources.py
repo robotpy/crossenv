@@ -18,12 +18,10 @@ def test_cross_compiler_runs(build_python, host_python):
         [
             host_python.binary,
             "-c",
-            dedent(
-                """\
+            dedent("""\
             import sysconfig
             print(sysconfig.get_config_var("CC"))
-            """
-            ),
+            """),
         ],
         universal_newlines=True,
     )
