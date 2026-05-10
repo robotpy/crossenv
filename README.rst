@@ -172,3 +172,12 @@ Known Limitations
   with extension modules (Cython, etc.), you will need to install them into
   Build-python's environment first. It's often a good idea to do a
   ``build-pip install <whatever>`` prior to ``pip install <whatever>``.
+
+Alternatives
+-----------------------------------------------------------------------------
+
+* https://github.com/beeware/xbuild is a PEP517 build frontend that has
+  additions and extensions to support cross-compiling wheels
+
+* https://cibuildwheel.pypa.io/ provides a way to build python wheels across
+  Mac, Linux, Windows across multiple versions of Python
