@@ -652,9 +652,10 @@ class CrossEnvBuilder(venv.EnvBuilder):
         """
         Stable-ABI suffixes the HOST interpreter can load.
 
-        CPython builds these in Python/dynload_shlib.c. The plain ".abi3"
-        entries sit inside an "#ifndef Py_GIL_DISABLED" block, and both the
-        platform-tagged forms and the ".abi3t" forms only exist from 3.15.
+        CPython builds these in Python/dynload_shlib.c. The ".abi3" entries
+        sit inside an "#ifndef Py_GIL_DISABLED" block, while the ".abi3t"
+        entries do not: abi3t loads on both free-threaded and GIL builds.
+        Both the platform-tagged forms and ".abi3t" only exist from 3.15.
         """
         free_threaded = self.host_sysconfigdata.build_time_vars.get("Py_GIL_DISABLED")
         try:
@@ -666,14 +667,16 @@ class CrossEnvBuilder(venv.EnvBuilder):
             # Free-threaded builds had no stable ABI before 3.15.
             return [] if free_threaded else [".abi3.so"]
 
-        stem = "abi3t" if free_threaded else "abi3"
-        # Plain form first, deliberately: setuptools get_abi3_suffix() returns
-        # the first entry containing ".abi3", and the portable name is the one
-        # we want emitted for a cross build.
-        suffixes = [".%s.so" % stem]
+        stems = ["abi3t"] if free_threaded else ["abi3", "abi3t"]
         soabi_platform = self._host_soabi_platform()
-        if soabi_platform:
-            suffixes.append(".%s-%s.so" % (stem, soabi_platform))
+        suffixes = []
+        for stem in stems:
+            # Plain form first, deliberately: setuptools get_abi3_suffix()
+            # returns the first entry containing ".abi3", and the portable
+            # name is the one we want emitted for a cross build.
+            suffixes.append(".%s.so" % stem)
+            if soabi_platform:
+                suffixes.append(".%s-%s.so" % (stem, soabi_platform))
         return suffixes
 
     def expand_platform_tags(self):

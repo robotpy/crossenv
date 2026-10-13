@@ -328,18 +328,15 @@ def test_abi3_extension_suffixes(crossenv):
         assert abi3 == ([] if free_threaded else [".abi3.so"])
         return
 
-    # setuptools get_abi3_suffix() returns the first entry containing ".abi3",
-    # so the untagged form has to come first.
-    stem = ".abi3t" if free_threaded else ".abi3"
-    assert abi3[0] == stem + ".so"
-
-    # A host with a PLATFORM_TRIPLET offers the tagged form too, so the loop
-    # below is not vacuous.
-    if len(ext_suffix[1:-3].split("-")) > 2:
-        assert len(abi3) == 2
-
-    # Any platform-tagged form must carry the host's own tag, not the build
-    # machine's.
-    for suffix in abi3[1:]:
-        tag = suffix.split("-", 1)[1]
-        assert ext_suffix.endswith("-" + tag)
+    # abi3t loads on both free-threaded and GIL builds from 3.15, abi3 only
+    # on GIL builds. setuptools get_abi3_suffix() returns the first entry
+    # containing ".abi3", so each untagged form comes before its tagged one.
+    # Any tagged form must carry the host's own tag, not the build machine's.
+    stems = [".abi3t"] if free_threaded else [".abi3", ".abi3t"]
+    platform = "-".join(ext_suffix[1:-3].split("-")[2:])
+    expected = []
+    for stem in stems:
+        expected.append(stem + ".so")
+        if platform:
+            expected.append("%s-%s.so" % (stem, platform))
+    assert abi3 == expected
