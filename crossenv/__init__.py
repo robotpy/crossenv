@@ -463,19 +463,17 @@ class CrossEnvBuilder(venv.EnvBuilder):
                     expected,
                 )
 
-    def _split_apple_os_version(self, value):
-        # Split the Apple OS version from the OS name prefix.
-        if value.startswith("ios"):
-            offset = 3
-        elif value.startswith("tvos"):
-            offset = 4
-        elif value.startswith("watchos"):
-            offset = 7
-        else:
-            raise ValueError("Unknown Apple compiler triple.")
+    @staticmethod
+    def _split_apple_os_version(value):
+        # Split the Apple OS version from the OS name prefix (e.g. ios13.0 ->
+        # ios, 13.0). No Apple OS name contains a digit, so the version starts
+        # at the first one. On macOS the version is the Darwin kernel version
+        # (e.g. darwin23.4.0), not the macOS version.
+        offset = next((i for i, c in enumerate(value) if c.isdigit()), len(value))
         return value[:offset], value[offset:]
 
-    def _clean_triple(self, triple):
+    @classmethod
+    def _clean_triple(cls, triple):
         # Triples are in the form cpu-vendor-kernel-system or cpu-kernel-system. So we'll
         # get something like: x86_64-linux-gnu or x86_64-pc-linux-gnu. We won't
         # overcomplicate this, since it's just to generate a warning.
@@ -490,7 +488,7 @@ class CrossEnvBuilder(venv.EnvBuilder):
                 parts[0] = "aarch64"
 
             # Remove any version identifier from the OS (e.g., ios13.0 -> ios)
-            parts[2], _ = self._split_apple_os_version(parts[2])
+            parts[2], _ = cls._split_apple_os_version(parts[2])
 
         if len(parts) == 4 and parts[1] != "apple":
             # 4-part "triples" are expected for Apple simulators;
