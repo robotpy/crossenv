@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.6.2] - 2026-10-19
+
+### Fixed
+- Restored macOS support. This was a regression in 1.6.0. (#166)
+
 ## [1.6.1] - 2025-10-24
 
 ### Fixed
