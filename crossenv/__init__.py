@@ -614,6 +614,10 @@ class CrossEnvBuilder(venv.EnvBuilder):
             "EXT_SUFFIX"
         ]
 
+        self.sysconfig_extension_suffixes = (
+            [self.sysconfig_ext_suffix] + self._host_abi3_suffixes() + [".so"]
+        )
+
         # Normalize case of the host system/sysname.
         self.host_system = {
             "ios": "iOS",
@@ -628,6 +632,50 @@ class CrossEnvBuilder(venv.EnvBuilder):
             "tvos": "Darwin",
             "watchos": "Darwin",
         }.get(self.host_sys_platform, self.host_sys_platform.title())
+
+    def _host_soabi_platform(self):
+        """
+        SOABI_PLATFORM from the host's EXT_SUFFIX, or "" if absent.
+
+        EXT_SUFFIX is "." + SOABI + ".so", and SOABI is
+        "cpython-<ver>[-<PLATFORM_TRIPLET>]". CPython only emits the
+        platform-tagged abi3 suffixes when that triplet is defined.
+        """
+        ext_suffix = self.sysconfig_ext_suffix
+        if not ext_suffix.startswith(".") or not ext_suffix.endswith(".so"):
+            return ""
+        return "-".join(ext_suffix[1:-3].split("-")[2:])
+
+    def _host_abi3_suffixes(self):
+        """
+        Stable-ABI suffixes the HOST interpreter can load.
+
+        CPython builds these in Python/dynload_shlib.c. The ".abi3" entries
+        sit inside an "#ifndef Py_GIL_DISABLED" block, while the ".abi3t"
+        entries do not: abi3t loads on both free-threaded and GIL builds.
+        Both the platform-tagged forms and ".abi3t" only exist from 3.15.
+        """
+        free_threaded = self.host_sysconfigdata.build_time_vars.get("Py_GIL_DISABLED")
+        try:
+            version_info = tuple(int(p) for p in self.host_version.split("."))
+        except ValueError:
+            version_info = ()
+
+        if version_info < (3, 15):
+            # Free-threaded builds had no stable ABI before 3.15.
+            return [] if free_threaded else [".abi3.so"]
+
+        stems = ["abi3t"] if free_threaded else ["abi3", "abi3t"]
+        soabi_platform = self._host_soabi_platform()
+        suffixes = []
+        for stem in stems:
+            # Plain form first, deliberately: setuptools get_abi3_suffix()
+            # returns the first entry containing ".abi3", and the portable
+            # name is the one we want emitted for a cross build.
+            suffixes.append(".%s.so" % stem)
+            if soabi_platform:
+                suffixes.append(".%s-%s.so" % (stem, soabi_platform))
+        return suffixes
 
     def expand_platform_tags(self):
         """
